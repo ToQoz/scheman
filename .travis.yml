@@ -1,0 +1,14 @@
+language: go
+go:
+  - 1.1.1
+  - 1.1
+  - tip
+services:
+  - mysql
+script: go test -v ./... && go get -u github.com/ToQoz/scheman-tester && DB_USER=travis go test -v github.com/ToQoz/scheman-tester/...
+notifications:
+  email:
+    recipients:
+      - toqoz403@gmail.com
+    on_success: change
+    on_failure: always
