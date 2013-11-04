@@ -5,7 +5,7 @@ go:
   - tip
 services:
   - mysql
-install: go get -v ./...
+install: go get -v ./... && go list -f '{{.TestImports}}' | sed 's/\[//g' | sed 's/\]//g' | xargs go get
 script: go test -v ./...
 notifications:
   email:

@@ -6,7 +6,9 @@ scheman is database schema migration tool.
 
 ## Testing
 
-All tests depend on db are in [ToQoz/scheman-test](http://github.com/ToQoz/scheman-test). Because, scheman refuse to have dependencies to many db drivers only for testing.
+- Install scheman. `git get github.com/ToQoz/scheman`
+- Install dependencies for test. `go list -f '{{.TestImports}}' github.com/ToQoz/scheman | sed 's/\[//g' | sed 's/\]//g' | xargs go get`
+- Run tests. `go test github.com/ToQoz/scheman`
 
 ## Examples
 
