@@ -1,5 +1,7 @@
 # Scheman
 
+[![Build Status](https://travis-ci.org/ToQoz/scheman.png?branch=master)](https://travis-ci.org/ToQoz/scheman)
+
 !!! Under development !!!
 
 scheman is database schema migration tool.
