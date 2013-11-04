@@ -5,7 +5,8 @@ go:
   - tip
 services:
   - mysql
-script: go test -v ./... && go get -u github.com/ToQoz/scheman-tester && DB_USER=travis go test -v github.com/ToQoz/scheman-tester/...
+install: go get -v ./...
+script: go test -v ./...
 notifications:
   email:
     recipients:
