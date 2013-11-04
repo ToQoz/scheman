@@ -1,4 +1,4 @@
-package main
+package scheman
 
 import (
 	"database/sql"
