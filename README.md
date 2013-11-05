@@ -9,8 +9,8 @@ scheman is database schema migration tool.
 ## Testing
 
 - Install scheman. `git get github.com/ToQoz/scheman`
-- Install dependencies for test. `go list -f '{{.TestImports}}' github.com/ToQoz/scheman | sed 's/\[//g' | sed 's/\]//g' | xargs go get`
-- Run tests. `go test github.com/ToQoz/scheman`
+- Install dependencies for test. `go list -f '{{.TestImports}}' github.com/ToQoz/scheman/... | sed 's/\[//g' | sed 's/\]//g' | xargs go get`
+- Run tests. `go test github.com/ToQoz/scheman/...`
 
 ## Examples
 
@@ -26,12 +26,14 @@ create: sql/20131103115446_create_posts_up.sql
 create: sql/20131103115446_create_posts_down.sql
 ```
 
-```go
+```
+$ vi migrate.go # Edit
+$ cat migrate.go
 package main
 
 import (
 	"database/sql"
-	"github.com/ToQoz/scheman"
+	"github.com/ToQoz/scheman/migrator"
 	_ "github.com/go-sql-driver/mysql"
 )
 
@@ -41,7 +43,7 @@ func main() {
 		panic(err)
 	}
 
-	migrator, err := scheman.NewMigrator(db, "./migrations")
+	migrator, err := migrator.New(db, "./migrations")
 	if err != nil {
 		panic(err)
 	}
@@ -51,4 +53,6 @@ func main() {
 		panic(err)
 	}
 }
+$ go run migrate.go
 ```
+

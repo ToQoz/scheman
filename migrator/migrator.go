@@ -1,4 +1,4 @@
-package scheman
+package migrator
 
 import (
 	"database/sql"
@@ -20,7 +20,7 @@ type Migrator struct {
 	migrationsPath string
 }
 
-func NewMigrator(db *sql.DB, migrationsPath string) (*Migrator, error) {
+func New(db *sql.DB, migrationsPath string) (*Migrator, error) {
 	mr := &Migrator{
 		db:             db,
 		migrationsPath: migrationsPath,

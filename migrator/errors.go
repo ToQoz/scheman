@@ -1,4 +1,4 @@
-package scheman
+package migrator
 
 import (
 	"fmt"
