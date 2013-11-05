@@ -69,6 +69,5 @@ func die(err error) {
 }
 
 func generateVersion() string {
-	return "20131104142327"
 	return time.Now().Format(versionLayout)
 }
