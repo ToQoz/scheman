@@ -12,7 +12,7 @@ scheman is database schema migration tool.
 - Install dependencies for test. `go list -f '{{.TestImports}}' github.com/ToQoz/scheman/... | sed 's/\[//g' | sed 's/\]//g' | xargs go get`
 - Run tests. `go test github.com/ToQoz/scheman/...`
 
-## Examples
+## Usage
 
 ### Generate migration
 
