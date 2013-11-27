@@ -6,11 +6,6 @@
 
 ## Usage
 
-- Write scheman.json(see scheman.json.sample as reference)
-- `$ scheman-mysql`
-
-## Options
-
 ```
 toqoz> $ scheman-mysql -h
 scheman-mysql is github.com/ToQoz/scheman's frontend for MySQL
