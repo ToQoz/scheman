@@ -2,7 +2,6 @@ package scheman
 
 import (
 	"database/sql"
-	"github.com/ToQoz/scheman/test_helpers"
 	_ "github.com/mattn/go-sqlite3"
 	"os"
 	"testing"
@@ -20,27 +19,27 @@ func TestSQLite3Migrate(t *testing.T) {
 	defer os.Remove(sqlite3DBName)
 	defer db.Close()
 
-	migrator := newMigrator(db, "_test_data/migrations")
+	migrator := requireMigrator(db, "_test_data/migrations")
 
 	if err = migrator.MigrateTo("20131103115446"); err != nil {
 		panic(err)
 	}
-	test_helpers.AssertEqual(t, "20131103115446", migrator.Version)
+	AssertEqual(t, "20131103115446", migrator.Version)
 
 	if err = migrator.MigrateTo("20131103115447"); err != nil {
 		panic(err)
 	}
-	test_helpers.AssertEqual(t, "20131103115447", migrator.Version)
+	AssertEqual(t, "20131103115447", migrator.Version)
 
 	if err = migrator.MigrateTo("20131103115446"); err != nil {
 		panic(err)
 	}
-	test_helpers.AssertEqual(t, "20131103115446", migrator.Version)
+	AssertEqual(t, "20131103115446", migrator.Version)
 
 	if err = migrator.MigrateTo("20131103115448"); err != nil {
 		panic(err)
 	}
-	test_helpers.AssertEqual(t, "20131103115448", migrator.Version)
+	AssertEqual(t, "20131103115448", migrator.Version)
 }
 
 func TestSQLite3RollbackMigration(t *testing.T) {
@@ -51,15 +50,15 @@ func TestSQLite3RollbackMigration(t *testing.T) {
 	defer os.Remove(sqlite3DBName)
 	defer db.Close()
 
-	migrator := newMigrator(db, "_test_data/migrations_20131103115449_invalid")
+	migrator := requireMigrator(db, "_test_data/migrations_20131103115449_invalid")
 
 	if err = migrator.MigrateTo("20131103115446"); err != nil {
 		panic(err)
 	}
 
 	err = migrator.MigrateTo("20131103115449")
-	test_helpers.AssertEqual(t, "20131103115446", migrator.Version)
-	test_helpers.AssertNotEqual(t, nil, err)
+	AssertEqual(t, "20131103115446", migrator.Version)
+	AssertNotEqual(t, nil, err)
 }
 
 func sqlite3GetDB() *sql.DB {
