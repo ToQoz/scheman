@@ -37,7 +37,7 @@ func TestMySQLMigrate(t *testing.T) {
 	defer db.Close()              // 2. close database
 	defer mysqlDropTestDatabase() // 1. drop database
 
-	migrator := newMigrator(db, "_test_data/migrations")
+	migrator := requireMigrator(db, "_test_data/migrations")
 
 	if err = migrator.MigrateTo("20131103115446"); err != nil {
 		panic(err)
