@@ -10,21 +10,43 @@ import (
 )
 
 var (
-	pathOpt       = flag.String("path", "migrations", "migrations path")
-	nameOpt       = flag.String("name", "", "migration name.(e.g. create_posts)")
 	versionLayout = "20060102150405"
 )
 
-func main() {
-	var err error
+func usage() {
 
+	banner := `scheman-generator is helper command for generating migration
+
+Usage:
+
+    scheman-generator [migration-name]
+
+The options are:
+
+`
+	fmt.Fprintf(os.Stderr, banner)
+	flag.PrintDefaults()
+	fmt.Fprintf(os.Stderr, "\n")
+	os.Exit(1)
+}
+
+func main() {
+	migrationsPath := flag.String("path", "migrations", "migrations path")
+	flag.Usage = usage
 	flag.Parse()
 
-	if *nameOpt == "" {
-		die(errors.New("-name is required"))
-	}
+	name := flag.Arg(0)
 
-	_, err = os.Stat(*pathOpt)
+	switch name {
+	case "":
+		flag.Usage()
+	default:
+		generateMigration(name, *migrationsPath)
+	}
+}
+
+func generateMigration(name string, migrationsPath string) {
+	_, err := os.Stat(migrationsPath)
 	if err != nil {
 		die(err)
 	}
@@ -32,19 +54,23 @@ func main() {
 	version := generateVersion()
 
 	for _, kind := range []string{"up", "down"} {
-		createMigration(filepath.Join(*pathOpt, version+"_"+*nameOpt+"_"+kind+".sql"))
+		createMigrationFile(filepath.Join(migrationsPath, version+"_"+name+"_"+kind+".sql"))
 	}
 }
 
-func createMigration(filename string) {
-	if err := create(filename); err != nil {
+func generateVersion() string {
+	return time.Now().Format(versionLayout)
+}
+
+func createMigrationFile(filename string) {
+	if err := createFile(filename); err != nil {
 		die(err)
 	} else {
 		fmt.Println("create: " + filename)
 	}
 }
 
-func create(filename string) error {
+func createFile(filename string) error {
 	_, err := os.Stat(filename)
 	if err != nil {
 		if os.IsNotExist(err) { // create file
@@ -64,10 +90,6 @@ func create(filename string) error {
 }
 
 func die(err error) {
-	fmt.Println(err.Error())
+	fmt.Fprintf(os.Stderr, err.Error())
 	os.Exit(1)
-}
-
-func generateVersion() string {
-	return time.Now().Format(versionLayout)
 }
