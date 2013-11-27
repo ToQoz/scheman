@@ -1,15 +1,15 @@
-package migrator
+package scheman
 
 import (
 	"database/sql"
 )
 
 func newMigrator(db *sql.DB, path string) *Migrator {
-	migrator, err := New(db, path)
+	s, err := NewMigrator(db, path)
 
 	if err != nil {
 		panic(err)
 	}
 
-	return migrator
+	return s
 }

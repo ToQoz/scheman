@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
-	"github.com/ToQoz/scheman/migrator"
+	"github.com/ToQoz/scheman"
 	_ "github.com/go-sql-driver/mysql"
 	"io/ioutil"
 	"os"
@@ -117,13 +117,13 @@ func migrateDatabase() {
 	}
 	defer db.Close()
 
-	migrator, err := migrator.New(db, cfg.MigrationsPath)
+	s, err := scheman.NewMigrator(db, cfg.MigrationsPath)
 	if err != nil {
 		panic(err)
 	}
 
 	fmt.Fprintf(os.Stderr, "Migrate database "+cfg.Database+" to "+cfg.Version+"\n\n")
-	err = migrator.MigrateTo(cfg.Version)
+	err = s.MigrateTo(cfg.Version)
 	if err != nil {
 		panic(err)
 	}

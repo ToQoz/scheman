@@ -1,4 +1,4 @@
-package migrator
+package scheman
 
 import (
 	"database/sql"
@@ -20,7 +20,7 @@ func TestSQLite3Migrate(t *testing.T) {
 	defer os.Remove(sqlite3DBName)
 	defer db.Close()
 
-	migrator := newMigrator(db, "../_test_data/migrations")
+	migrator := newMigrator(db, "_test_data/migrations")
 
 	if err = migrator.MigrateTo("20131103115446"); err != nil {
 		panic(err)
@@ -51,7 +51,7 @@ func TestSQLite3RollbackMigration(t *testing.T) {
 	defer os.Remove(sqlite3DBName)
 	defer db.Close()
 
-	migrator := newMigrator(db, "../_test_data/migrations_20131103115449_invalid")
+	migrator := newMigrator(db, "_test_data/migrations_20131103115449_invalid")
 
 	if err = migrator.MigrateTo("20131103115446"); err != nil {
 		panic(err)
