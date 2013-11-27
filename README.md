@@ -14,6 +14,8 @@ scheman is database schema migration tool.
 
 ## Examples
 
+### Generate migration
+
 ```
 $ mkdir migrations
 $ scheman -name create_posts
@@ -26,33 +28,22 @@ create: sql/20131103115446_create_posts_up.sql
 create: sql/20131103115446_create_posts_down.sql
 ```
 
+### Execute migrations
+
+#### If you use MySQL and want to use frontend that provided by scheman.
+
 ```
-$ vi migrate.go # Edit
-$ cat migrate.go
-package main
+$ go get github.com/ToQoz/scheman/scheman-mysql
+$ vi scheman.json # see http://github.com/ToQoz/scheman/tree/master/scheman-mysql/scheman.json.sample
+$ cat !$
+$ scheman-mysql
+```
 
-import (
-	"database/sql"
-	"github.com/ToQoz/scheman/migrator"
-	_ "github.com/go-sql-driver/mysql"
-)
+See also [scheman-mysql's README](http://github.com/ToQoz/scheman/tree/master/scheman-mysql)
 
-func main() {
-	db, err := sql.Open("mysql", "user:passwd@/dbname")
-	if err != nil {
-		panic(err)
-	}
+#### If you use other RDBMS or want to use your own frontend.
 
-	migrator, err := migrator.New(db, "./migrations")
-	if err != nil {
-		panic(err)
-	}
-
-	err = migrator.MigrateTo("20131103115446")
-	if err != nil {
-		panic(err)
-	}
-}
+```
+$ vi migrate.go # Write with reference to http://github.com/ToQoz/scheman/tree/master/scheman-mysql
 $ go run migrate.go
 ```
-

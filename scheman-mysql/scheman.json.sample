@@ -1,0 +1,8 @@
+{
+  "User":           "mysql login user",
+  "Password":       "mysql login password",
+  "Database":       "mysql database name",
+  "Encoding":       "mysql database encoding(default utf8)",
+  "MigrationsPath": "migration files directory path",
+  "Version":        "migration version"
+}
