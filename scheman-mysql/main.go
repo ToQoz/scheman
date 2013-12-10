@@ -2,62 +2,16 @@ package main
 
 import (
 	"database/sql"
-	"encoding/json"
 	"flag"
 	"fmt"
 	"github.com/ToQoz/scheman"
 	_ "github.com/go-sql-driver/mysql"
-	"io/ioutil"
 	"os"
-	"reflect"
 )
 
 var (
-	cfg *config
+	cfg *scheman.Config
 )
-
-type config struct {
-	filename       string `json:"-`
-	User           string
-	Password       string
-	Database       string
-	MigrationsPath string
-	Version        string
-	Encoding       string
-}
-
-func newConfig(filename string) *config {
-	cfg := &config{filename: filename}
-
-	f, err := ioutil.ReadFile(filename)
-
-	if err != nil {
-		fmt.Fprintf(os.Stderr, err.Error())
-		os.Exit(1)
-	}
-
-	err = json.Unmarshal(f, cfg)
-
-	if err != nil {
-		fmt.Fprintf(os.Stderr, err.Error())
-		os.Exit(1)
-	}
-
-	return cfg
-}
-
-func (cfg *config) Require(key string) {
-	v := cfg.Get(key)
-
-	if v == "" {
-		fmt.Fprintf(os.Stderr, "<"+cfg.filename+"> "+key+" should not be empty")
-		os.Exit(1)
-	}
-}
-
-func (cfg *config) Get(key string) string {
-	return reflect.ValueOf(*cfg).FieldByName(key).String()
-}
 
 func usage() {
 	banner := `scheman-mysql is github.com/ToQoz/scheman's frontend for MySQL
@@ -134,7 +88,7 @@ func main() {
 	flag.Usage = usage
 	flag.Parse()
 
-	cfg = newConfig(*config_filename)
+	cfg = scheman.NewConfig(*config_filename)
 
 	cfg.Require("User")
 	cfg.Require("Database")
