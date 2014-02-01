@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"io/ioutil"
+	"os"
 	"path/filepath"
 	"regexp"
 	"sort"
@@ -99,7 +100,6 @@ func (mr *Migrator) NewMigrations(kind string) (migrations, error) {
 		fp := filepath.Join(mr.migrationsPath, file.Name())
 
 		// Check all migrations(*_up.sql and *_down.sql).
-		// if empty return error
 		if migrationFileMatcher.MatchString(fp) {
 			data, err := ioutil.ReadFile(fp)
 
@@ -107,12 +107,29 @@ func (mr *Migrator) NewMigrations(kind string) (migrations, error) {
 				return nil, err
 			}
 
+			// if file is empty, return error
 			if strings.Trim(string(data), " \n ") == "" {
 				return nil, &ErrMigrationFileIsEmpty{fp}
 			}
 
+			// Check reverse migration existance
+			var rfp string
+
+			switch {
+			case strings.HasSuffix(fp, "_up.sql"):
+				rfp = strings.Replace(fp, "_up.sql", "_down.sql", 1)
+			case strings.HasSuffix(fp, "_down.sql"):
+				rfp = strings.Replace(fp, "_down.sql", "_up.sql", 1)
+			}
+
+			_, err = os.Stat(rfp)
+
+			if err != nil {
+				return nil, fmt.Errorf("%s is found, but %s is not found", fp, rfp)
+			}
+
 			// Don't match kind -> next
-			if strings.Index(fp, fmt.Sprintf("_%s.sql", kind)) == -1 {
+			if !strings.HasSuffix(fp, fmt.Sprintf("_%s.sql", kind)) {
 				continue
 			}
 		} else {

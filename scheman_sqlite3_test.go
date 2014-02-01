@@ -133,6 +133,48 @@ func TestSQLite3MultipleStmt(t *testing.T) {
 	}
 }
 
+func TestSQLite3EmptyMigrationFile(t *testing.T) {
+	var err error
+
+	db := mysqlGetDatabase()
+
+	defer db.Close()              // 2. close database
+	defer mysqlDropTestDatabase() // 1. drop database
+
+	migrator, err := NewMigrator(db, "testdata/migrations_has_empty_sqlfile")
+
+	if err != nil {
+		t.Error("Unexpected error, %s", err)
+	}
+
+	err = migrator.MigrateTo("1")
+
+	if err == nil {
+		t.Error("error expected, but not got.")
+	}
+}
+
+func TestSQLite3ReversedMigrationFileIsNotFound(t *testing.T) {
+	var err error
+
+	db := mysqlGetDatabase()
+
+	defer db.Close()              // 2. close database
+	defer mysqlDropTestDatabase() // 1. drop database
+
+	migrator, err := NewMigrator(db, "testdata/migrations_reverse_migration_is_empty")
+
+	if err != nil {
+		t.Error("Unexpected error, %s", err)
+	}
+
+	err = migrator.MigrateTo("1")
+
+	if err == nil {
+		t.Error("error expected, but not got.")
+	}
+}
+
 func sqlite3GetDB() *sql.DB {
 	db, err := sql.Open("sqlite3", sqlite3DBName)
 

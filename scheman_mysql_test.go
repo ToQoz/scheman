@@ -147,6 +147,27 @@ func TestMySQLEmptyMigrationFile(t *testing.T) {
 	}
 }
 
+func TestMySQLReversedMigrationFileIsNotFound(t *testing.T) {
+	var err error
+
+	db := mysqlGetDatabase()
+
+	defer db.Close()              // 2. close database
+	defer mysqlDropTestDatabase() // 1. drop database
+
+	migrator, err := NewMigrator(db, "testdata/migrations_reverse_migration_is_empty")
+
+	if err != nil {
+		t.Error("Unexpected error, %s", err)
+	}
+
+	err = migrator.MigrateTo("1")
+
+	if err == nil {
+		t.Error("error expected, but not got.")
+	}
+}
+
 // ----------------------------------------------------------------------------
 // Helpers
 // ----------------------------------------------------------------------------
