@@ -2,9 +2,10 @@ package scheman
 
 import (
 	"database/sql"
-	_ "github.com/go-sql-driver/mysql"
 	"os"
 	"testing"
+
+	_ "github.com/go-sql-driver/mysql"
 )
 
 var (
@@ -36,7 +37,7 @@ func TestMySQLMigrate(t *testing.T) {
 	defer db.Close()              // 2. close database
 	defer mysqlDropTestDatabase() // 1. drop database
 
-	migrator := requireMigrator(db, "_test_data/migrations")
+	migrator := requireMigrator(db, "testdata/migrations")
 
 	if err = migrator.MigrateTo("20131103115446"); err != nil {
 		panic(err)
@@ -68,7 +69,7 @@ func TestMySQLRollbackMigration(t *testing.T) {
 	defer db.Close()              // 2. close database
 	defer mysqlDropTestDatabase() // 1. drop database
 
-	migrator := requireMigrator(db, "_test_data/migrations_20131103115449_invalid")
+	migrator := requireMigrator(db, "testdata/migrations_20131103115449_invalid")
 
 	if err = migrator.MigrateTo("20131103115446"); err != nil {
 		panic(err)

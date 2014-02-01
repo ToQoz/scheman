@@ -2,9 +2,10 @@ package scheman
 
 import (
 	"database/sql"
-	_ "github.com/mattn/go-sqlite3"
 	"os"
 	"testing"
+
+	_ "github.com/mattn/go-sqlite3"
 )
 
 var (
@@ -19,7 +20,7 @@ func TestSQLite3Migrate(t *testing.T) {
 	defer os.Remove(sqlite3DBName)
 	defer db.Close()
 
-	migrator := requireMigrator(db, "_test_data/migrations")
+	migrator := requireMigrator(db, "testdata/migrations")
 
 	if err = migrator.MigrateTo("20131103115446"); err != nil {
 		panic(err)
@@ -50,7 +51,7 @@ func TestSQLite3RollbackMigration(t *testing.T) {
 	defer os.Remove(sqlite3DBName)
 	defer db.Close()
 
-	migrator := requireMigrator(db, "_test_data/migrations_20131103115449_invalid")
+	migrator := requireMigrator(db, "testdata/migrations_20131103115449_invalid")
 
 	if err = migrator.MigrateTo("20131103115446"); err != nil {
 		panic(err)
