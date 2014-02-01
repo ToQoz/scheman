@@ -11,7 +11,8 @@ import (
 )
 
 var (
-	Verbose = true
+	Verbose              = true
+	migrationFileMatcher = regexp.MustCompile(`\/(\d+)_(\w+)_(?:up|down).sql$`)
 )
 
 // ----------------------------------------------------------------------------
@@ -90,51 +91,53 @@ func (mr *Migrator) NewMigrations(kind string) (migrations, error) {
 		return nil, err
 	}
 
-	targetMatcher := regexp.MustCompile(`\/(\d+)_(\w+)_` + kind + `.sql$`)
-	migrationMatcher := regexp.MustCompile(`\/(\d+)_(\w+)_(up|down).sql$`)
-
 	for _, file := range files {
 		if file.IsDir() {
 			continue
 		}
 
-		fpath := filepath.Join(mr.migrationsPath, file.Name())
+		fp := filepath.Join(mr.migrationsPath, file.Name())
 
 		// Check all migrations(*_up.sql and *_down.sql).
 		// if empty return error
-		if migrationMatcher.MatchString(fpath) {
-			data, err := ioutil.ReadFile(fpath)
+		if migrationFileMatcher.MatchString(fp) {
+			data, err := ioutil.ReadFile(fp)
 
 			if err != nil {
 				return nil, err
 			}
 
 			if strings.Trim(string(data), " \n ") == "" {
-				return nil, &ErrMigrationFileIsEmpty{fpath}
+				return nil, &ErrMigrationFileIsEmpty{fp}
 			}
-		}
 
-		if !targetMatcher.MatchString(fpath) {
+			// Don't match kind -> next
+			if strings.Index(fp, fmt.Sprintf("_%s.sql", kind)) == -1 {
+				continue
+			}
+		} else {
 			continue
 		}
 
-		matched := targetMatcher.FindStringSubmatch(fpath)
+		captured := migrationFileMatcher.FindStringSubmatch(fp)
 		m := &migration{
-			version:  matched[1],
-			name:     matched[2],
-			filepath: fpath,
+			version:  captured[1],
+			name:     captured[2],
+			filepath: fp,
 			kind:     kind,
 		}
 
 		if m.kind == "up" {
 			upped := containString(uppedVersions, m.version)
 			inRange := mr.Version <= m.version && mr.targetVersion >= m.version
+
 			if !upped && inRange {
 				migrations = append(migrations, m)
 			}
 		} else {
 			downed := !containString(uppedVersions, m.version)
 			inRange := mr.Version >= m.version && mr.targetVersion < m.version
+
 			if !downed && inRange {
 				migrations = append(migrations, m)
 			}
