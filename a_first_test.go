@@ -5,6 +5,8 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/lestrrat/go-test-mysqld"
 	"log"
+	"os/exec"
+	"strings"
 	"testing"
 )
 
@@ -38,5 +40,21 @@ func TestStartMysqld(t *testing.T) {
 
 	if err != nil {
 		panic(err)
+	}
+}
+
+func TestThisFileIsFirstTestFile(t *testing.T) {
+	cmd := exec.Command("go", "list", "-f", "{{.TestGoFiles}}")
+	output, err := cmd.CombinedOutput()
+
+	if err != nil {
+		panic(err)
+	}
+
+	tests := strings.Split(strings.Trim(string(output), " \n[]"), " ")
+	lastTest := tests[0]
+
+	if lastTest != "a_first_test.go" {
+		t.Errorf("expected last_test is a_first_test.go, but got %v", lastTest)
 	}
 }
