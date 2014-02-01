@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 	"regexp"
 	"sort"
+	"strings"
 )
 
 // ----------------------------------------------------------------------------
@@ -240,18 +241,60 @@ type migration struct {
 }
 
 func (m *migration) migrate(db *sql.Tx) error {
-	data, err := ioutil.ReadFile(m.filepath)
+	buf, err := ioutil.ReadFile(m.filepath)
 
 	if err != nil {
 		return err
 	}
 
-	_, err = db.Exec(string(data))
+	strbuf := removeComment(string(buf))
+	fmt.Print(strbuf)
 
-	if err != nil {
-		return ErrMigration{migration: m, detail: err.Error()}
+	// If multiple stmts given, this split stmts at ";".
+	// WARNING: This is realized by very ugly and not good way.
+	//          But probably this is not problem in general cases.
+	//          Generally, DDL uses ";" as end of stmt, or comment.
+
+	var stmt string
+
+	for {
+		if strings.Trim(strbuf, " \n") == "" {
+			break
+		}
+
+		i := strings.Index(strbuf, ";")
+
+		// "foo" ->
+		//     stmt: "foo;"
+		//     strbuf: ""
+		// "foo;bar;foobar;" ->
+		//     stmt: "foo;"
+		//     strbuf: "bar;foobar;"
+		if i == -1 {
+			stmt = strbuf
+			strbuf = ""
+		} else {
+			stmt = strbuf[:i+1]
+			strbuf = strbuf[i+1:]
+		}
+
+		_, err = db.Exec(stmt)
+
+		if err != nil {
+			return ErrMigration{migration: m, detail: err.Error()}
+		}
 	}
 
+	err = m.updateVersion(db)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *migration) updateVersion(db *sql.Tx) error {
 	var q string
 
 	if m.kind == "up" {
@@ -260,7 +303,7 @@ func (m *migration) migrate(db *sql.Tx) error {
 		q = "DELETE FROM scheman_versions WHERE version = ?;"
 	}
 
-	_, err = db.Exec(q, m.version)
+	_, err := db.Exec(q, m.version)
 
 	if err != nil {
 		return ErrQuery{query: q, detail: err.Error()}
@@ -281,4 +324,9 @@ func containString(slice []string, s string) bool {
 	}
 
 	return false
+}
+
+func removeComment(q string) string {
+	r := regexp.MustCompile(`--.*`)
+	return r.ReplaceAllString(q, "")
 }

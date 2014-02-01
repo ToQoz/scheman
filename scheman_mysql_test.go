@@ -89,6 +89,43 @@ func TestMySQLRollbackMigration(t *testing.T) {
 	}
 }
 
+func TestMySQLMultipleStmts(t *testing.T) {
+	var err error
+
+	db := mysqlGetDatabase()
+
+	defer db.Close()              // 2. close database
+	defer mysqlDropTestDatabase() // 1. drop database
+
+	migrator, err := NewMigrator(db, "testdata/migrations_multiple_stmts")
+
+	if err != nil {
+		t.Error("expected error on migration, but not got it.")
+	}
+
+	err = migrator.MigrateTo("1")
+
+	if err != nil {
+		t.Errorf("unexpected err: %s", err)
+		return
+	}
+
+	if expected := "1"; migrator.Version != expected {
+		t.Errorf("expected version %s, but got %s", expected, migrator.Version)
+	}
+
+	err = migrator.MigrateTo("2")
+
+	if err != nil {
+		t.Errorf("unexpected err: %s", err)
+		return
+	}
+
+	if expected := "2"; migrator.Version != expected {
+		t.Errorf("expected version %s, but got %s", expected, migrator.Version)
+	}
+}
+
 // ----------------------------------------------------------------------------
 // Helpers
 // ----------------------------------------------------------------------------

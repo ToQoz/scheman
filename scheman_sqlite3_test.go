@@ -96,6 +96,43 @@ func TestSQLite3RollbackMigration(t *testing.T) {
 	}
 }
 
+func TestSQLite3MultipleStmt(t *testing.T) {
+	var err error
+
+	db := sqlite3GetDB()
+
+	defer os.Remove(sqlite3DBName)
+	defer db.Close()
+
+	migrator, err := NewMigrator(db, "testdata/migrations_multiple_stmts")
+
+	if err != nil {
+		t.Errorf("unexpected err: %s", err)
+	}
+
+	err = migrator.MigrateTo("1")
+
+	if err != nil {
+		t.Errorf("unexpected err: %s", err)
+		return
+	}
+
+	if expected := "1"; migrator.Version != expected {
+		t.Errorf("expected version %s, but got %s", expected, migrator.Version)
+	}
+
+	err = migrator.MigrateTo("2")
+
+	if err != nil {
+		t.Errorf("unexpected err: %s", err)
+		return
+	}
+
+	if expected := "2"; migrator.Version != expected {
+		t.Errorf("expected version %s, but got %s", expected, migrator.Version)
+	}
+}
+
 func sqlite3GetDB() *sql.DB {
 	db, err := sql.Open("sqlite3", sqlite3DBName)
 
