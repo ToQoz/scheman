@@ -2,36 +2,13 @@ package scheman
 
 import (
 	"database/sql"
-	"os"
-	"testing"
-
 	_ "github.com/go-sql-driver/mysql"
+	"testing"
 )
-
-var (
-	mysqlDBName   = "scheman_tester_test"
-	mysqlUser     = "root"
-	mysqlPassword = ""
-)
-
-func init() {
-	u := os.Getenv("DB_USER")
-
-	if u != "" {
-		mysqlUser = u
-	}
-
-	p := os.Getenv("DB_PASSWORD")
-
-	if p != "" {
-		mysqlPassword = p
-	}
-}
 
 func TestMySQLMigrate(t *testing.T) {
 	var err error
 
-	mysqlCreateTestDatabase()
 	db := mysqlGetDatabase()
 
 	defer db.Close()              // 2. close database
@@ -63,7 +40,6 @@ func TestMySQLMigrate(t *testing.T) {
 func TestMySQLRollbackMigration(t *testing.T) {
 	var err error
 
-	mysqlCreateTestDatabase()
 	db := mysqlGetDatabase()
 
 	defer db.Close()              // 2. close database
@@ -80,8 +56,14 @@ func TestMySQLRollbackMigration(t *testing.T) {
 	AssertEqual(t, "20131103115446", migrator.Version)
 }
 
+// ----------------------------------------------------------------------------
+// Helpers
+// ----------------------------------------------------------------------------
+
 func mysqlGetDatabase() *sql.DB {
-	db, err := sql.Open("mysql", mysqlUser+":"+mysqlPassword+"@/"+mysqlDBName)
+	_mysqlCreateTestDatabase()
+
+	db, err := sql.Open("mysql", Mysqld.Datasource("mysqltest", "", "", 0))
 
 	if err != nil {
 		panic(err)
@@ -90,8 +72,8 @@ func mysqlGetDatabase() *sql.DB {
 	return db
 }
 
-func mysqlCreateTestDatabase() {
-	db, err := sql.Open("mysql", mysqlUser+":"+mysqlPassword+"@/")
+func mysqlDropTestDatabase() {
+	db, err := sql.Open("mysql", Mysqld.Datasource("", "", "", 0))
 
 	if err != nil {
 		panic(err)
@@ -99,15 +81,15 @@ func mysqlCreateTestDatabase() {
 
 	defer db.Close()
 
-	_, err = db.Exec("CREATE DATABASE IF NOT EXISTS " + mysqlDBName)
+	_, err = db.Exec("DROP DATABASE IF EXISTS mysqltest")
 
 	if err != nil {
 		panic(err)
 	}
 }
 
-func mysqlDropTestDatabase() {
-	db, err := sql.Open("mysql", mysqlUser+":"+mysqlPassword+"@/")
+func _mysqlCreateTestDatabase() {
+	db, err := sql.Open("mysql", Mysqld.Datasource("", "", "", 0))
 
 	if err != nil {
 		panic(err)
@@ -115,7 +97,7 @@ func mysqlDropTestDatabase() {
 
 	defer db.Close()
 
-	_, err = db.Exec("DROP DATABASE IF EXISTS " + mysqlDBName)
+	_, err = db.Exec("CREATE DATABASE IF NOT EXISTS mysqltest")
 
 	if err != nil {
 		panic(err)

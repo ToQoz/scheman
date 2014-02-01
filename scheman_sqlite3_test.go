@@ -2,10 +2,9 @@ package scheman
 
 import (
 	"database/sql"
+	_ "github.com/mattn/go-sqlite3"
 	"os"
 	"testing"
-
-	_ "github.com/mattn/go-sqlite3"
 )
 
 var (

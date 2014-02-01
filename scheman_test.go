@@ -7,7 +7,6 @@ import (
 
 func requireMigrator(db *sql.DB, path string) *Migrator {
 	s, err := NewMigrator(db, path)
-
 	if err != nil {
 		panic(err)
 	}
@@ -26,4 +25,3 @@ func AssertNotEqual(t *testing.T, expected, actual interface{}) {
 		t.Errorf("not expected <%s>, but got <%s>", expected, actual)
 	}
 }
-
