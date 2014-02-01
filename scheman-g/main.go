@@ -15,11 +15,11 @@ var (
 
 func usage() {
 
-	banner := `scheman-generator is helper command for generating migration
+	banner := `scheman-g is helper command for generating migration
 
 Usage:
 
-    scheman-generator [migration-name]
+    scheman-g [migration-name]
 
 The options are:
 
