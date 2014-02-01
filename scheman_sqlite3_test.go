@@ -19,27 +19,51 @@ func TestSQLite3Migrate(t *testing.T) {
 	defer os.Remove(sqlite3DBName)
 	defer db.Close()
 
-	migrator := requireMigrator(db, "testdata/migrations")
+	migrator, err := NewMigrator(db, "testdata/migrations")
 
-	if err = migrator.MigrateTo("20131103115446"); err != nil {
-		panic(err)
+	if err != nil {
+		t.Errorf("unexpected err: %s", err)
 	}
-	AssertEqual(t, "20131103115446", migrator.Version)
 
-	if err = migrator.MigrateTo("20131103115447"); err != nil {
-		panic(err)
-	}
-	AssertEqual(t, "20131103115447", migrator.Version)
+	err = migrator.MigrateTo("20131103115446")
 
-	if err = migrator.MigrateTo("20131103115446"); err != nil {
-		panic(err)
+	if err != nil {
+		t.Errorf("unexpected err: %s", err)
 	}
-	AssertEqual(t, "20131103115446", migrator.Version)
 
-	if err = migrator.MigrateTo("20131103115448"); err != nil {
-		panic(err)
+	if expected := "20131103115446"; migrator.Version != expected {
+		t.Errorf("expected version %s, but got %s", expected, migrator.Version)
 	}
-	AssertEqual(t, "20131103115448", migrator.Version)
+
+	err = migrator.MigrateTo("20131103115447")
+
+	if err != nil {
+		t.Errorf("unexpected err: %s", err)
+	}
+
+	if expected := "20131103115447"; migrator.Version != expected {
+		t.Errorf("expected version %s, but got %s", expected, migrator.Version)
+	}
+
+	err = migrator.MigrateTo("20131103115446")
+
+	if err != nil {
+		t.Errorf("unexpected err: %s", err)
+	}
+
+	if expected := "20131103115446"; migrator.Version != expected {
+		t.Errorf("expected version %s, but got %s", expected, migrator.Version)
+	}
+
+	err = migrator.MigrateTo("20131103115448")
+
+	if err != nil {
+		t.Errorf("unexpected err: %s", err)
+	}
+
+	if expected := "20131103115448"; migrator.Version != expected {
+		t.Errorf("expected version %s, but got %s", expected, migrator.Version)
+	}
 }
 
 func TestSQLite3RollbackMigration(t *testing.T) {
@@ -50,15 +74,26 @@ func TestSQLite3RollbackMigration(t *testing.T) {
 	defer os.Remove(sqlite3DBName)
 	defer db.Close()
 
-	migrator := requireMigrator(db, "testdata/migrations_20131103115449_invalid")
+	migrator, err := NewMigrator(db, "testdata/migrations_20131103115449_invalid")
+	if err != nil {
+		t.Errorf("unexpected err: %s", err)
+	}
 
-	if err = migrator.MigrateTo("20131103115446"); err != nil {
-		panic(err)
+	err = migrator.MigrateTo("20131103115446")
+
+	if err != nil {
+		t.Errorf("unexpected err: %s", err)
 	}
 
 	err = migrator.MigrateTo("20131103115449")
-	AssertEqual(t, "20131103115446", migrator.Version)
-	AssertNotEqual(t, nil, err)
+
+	if err == nil {
+		t.Errorf("validation error is expected, but not got it.")
+	}
+
+	if expected := "20131103115446"; migrator.Version != expected {
+		t.Errorf("expected version %s, but got %s", expected, migrator.Version)
+	}
 }
 
 func sqlite3GetDB() *sql.DB {

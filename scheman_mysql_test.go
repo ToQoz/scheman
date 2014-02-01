@@ -14,27 +14,51 @@ func TestMySQLMigrate(t *testing.T) {
 	defer db.Close()              // 2. close database
 	defer mysqlDropTestDatabase() // 1. drop database
 
-	migrator := requireMigrator(db, "testdata/migrations")
+	migrator, err := NewMigrator(db, "testdata/migrations")
 
-	if err = migrator.MigrateTo("20131103115446"); err != nil {
-		panic(err)
+	if err != nil {
+		t.Errorf("unexpected err: %s", err)
 	}
-	AssertEqual(t, "20131103115446", migrator.Version)
 
-	if err = migrator.MigrateTo("20131103115447"); err != nil {
-		panic(err)
-	}
-	AssertEqual(t, "20131103115447", migrator.Version)
+	err = migrator.MigrateTo("20131103115446")
 
-	if err = migrator.MigrateTo("20131103115446"); err != nil {
-		panic(err)
+	if err != nil {
+		t.Errorf("unexpected err: %s", err)
 	}
-	AssertEqual(t, "20131103115446", migrator.Version)
 
-	if err = migrator.MigrateTo("20131103115448"); err != nil {
-		panic(err)
+	if expected := "20131103115446"; migrator.Version != expected {
+		t.Errorf("expected version %s, but got %s", expected, migrator.Version)
 	}
-	AssertEqual(t, "20131103115448", migrator.Version)
+
+	err = migrator.MigrateTo("20131103115447")
+
+	if err != nil {
+		t.Errorf("unexpected err: %s", err)
+	}
+
+	if expected := "20131103115447"; migrator.Version != expected {
+		t.Errorf("expected version %s, but got %s", expected, migrator.Version)
+	}
+
+	err = migrator.MigrateTo("20131103115446")
+
+	if err != nil {
+		t.Errorf("unexpected err: %s", err)
+	}
+
+	if expected := "20131103115446"; migrator.Version != expected {
+		t.Errorf("expected version %s, but got %s", expected, migrator.Version)
+	}
+
+	err = migrator.MigrateTo("20131103115448")
+
+	if err != nil {
+		t.Errorf("unexpected err: %s", err)
+	}
+
+	if expected := "20131103115448"; migrator.Version != expected {
+		t.Errorf("expected version %s, but got %s", expected, migrator.Version)
+	}
 }
 
 func TestMySQLRollbackMigration(t *testing.T) {
@@ -45,15 +69,24 @@ func TestMySQLRollbackMigration(t *testing.T) {
 	defer db.Close()              // 2. close database
 	defer mysqlDropTestDatabase() // 1. drop database
 
-	migrator := requireMigrator(db, "testdata/migrations_20131103115449_invalid")
+	migrator, err := NewMigrator(db, "testdata/migrations_20131103115449_invalid")
+	if err != nil {
+		panic(err)
+	}
 
 	if err = migrator.MigrateTo("20131103115446"); err != nil {
 		panic(err)
 	}
 
 	err = migrator.MigrateTo("20131103115449")
-	AssertNotEqual(t, nil, err)
-	AssertEqual(t, "20131103115446", migrator.Version)
+
+	if err == nil {
+		t.Error("expected error on migration, but not got it.")
+	}
+
+	if expected := "20131103115446"; migrator.Version != expected {
+		t.Errorf("expected version %s, but got %s", expected, migrator.Version)
+	}
 }
 
 // ----------------------------------------------------------------------------
@@ -61,7 +94,7 @@ func TestMySQLRollbackMigration(t *testing.T) {
 // ----------------------------------------------------------------------------
 
 func mysqlGetDatabase() *sql.DB {
-	_mysqlCreateTestDatabase()
+	mysqlCreateTestDatabase()
 
 	db, err := sql.Open("mysql", Mysqld.Datasource("mysqltest", "", "", 0))
 
@@ -88,7 +121,7 @@ func mysqlDropTestDatabase() {
 	}
 }
 
-func _mysqlCreateTestDatabase() {
+func mysqlCreateTestDatabase() {
 	db, err := sql.Open("mysql", Mysqld.Datasource("", "", "", 0))
 
 	if err != nil {
