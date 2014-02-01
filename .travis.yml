@@ -2,11 +2,16 @@ language: go
 go:
   - 1.1.1
   - 1.1
+  - 1.2
   - tip
 services:
   - mysql
-install: go get -v ./... && go list -f '{{.TestImports}}' ./... | sed 's/\[//g' | sed 's/\]//g' | xargs go get
-script: go test -v ./...
+install:
+  - go get -v ./...
+  - go list -f '{{.TestImports}}' ./... | sed 's/\[//g' | sed 's/\]//g' | xargs go get
+script:
+  - go build -v ./...
+  - go test -v ./...
 notifications:
   email:
     recipients:
