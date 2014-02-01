@@ -88,6 +88,10 @@ func (mr *Migrator) NewMigrations(kind string) (migrations, error) {
 	}
 
 	for _, file := range files {
+		if file.IsDir() {
+			continue
+		}
+
 		fpath := filepath.Join(mr.migrationsPath, file.Name())
 
 		if !matcher.MatchString(fpath) {
