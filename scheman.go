@@ -10,6 +10,10 @@ import (
 	"strings"
 )
 
+var (
+	Verbose = true
+)
+
 // ----------------------------------------------------------------------------
 // Migrator
 // ----------------------------------------------------------------------------
@@ -212,27 +216,39 @@ type migrations []*migration
 
 func (ms migrations) migrate(db *sql.DB) error {
 	if len(ms) == 0 {
-		fmt.Println("Nothing to do")
+		if Verbose {
+			fmt.Println("Nothing to do")
+		}
 		return nil
 	}
 
-	fmt.Println("\n=== migrations.Begin ===")
+	if Verbose {
+		fmt.Println("\n=== migrations.Begin ===")
+	}
 	tx, _ := db.Begin()
 
 	for _, migration := range ms {
-		fmt.Printf("%5s: %s %s\n", migration.kind, migration.version, migration.name)
+		if Verbose {
+			fmt.Printf("%5s: %s %s\n", migration.kind, migration.version, migration.name)
+		}
 		err := migration.migrate(tx)
 
 		if err != nil {
-			fmt.Println(err.Error())
+			if Verbose {
+				fmt.Println(err.Error())
+			}
 			tx.Rollback()
-			fmt.Println("=== migrations.Rollback!!! ===\n")
+			if Verbose {
+				fmt.Println("=== migrations.Rollback!!! ===\n")
+			}
 			return err
 		}
 	}
 
 	tx.Commit()
-	fmt.Println("=== migrations.End ===\n")
+	if Verbose {
+		fmt.Println("=== migrations.End ===\n")
+	}
 
 	return nil
 }

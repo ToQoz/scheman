@@ -14,6 +14,10 @@ var (
 	Mysqld *mysqltest.TestMysqld
 )
 
+func init() {
+	Verbose = false
+}
+
 func TestStartMysqld(t *testing.T) {
 	var err error
 
