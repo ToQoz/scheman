@@ -54,13 +54,13 @@ func (mr *Migrator) MigrateTo(targetVersion string) error {
 		kind = "up"
 	}
 
-	migrations, err := mr.NewMigrations(kind)
+	ms, err := mr.NewMigrations(kind)
 
 	if err != nil {
 		return err
 	}
 
-	err = migrations.migrate(mr.db)
+	err = ms.migrate(mr.db)
 
 	if err != nil {
 		return err
