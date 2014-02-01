@@ -228,6 +228,7 @@ func (ms migrations) migrate(db *sql.DB) error {
 	if Verbose {
 		fmt.Println("\n=== migrations.Begin ===")
 	}
+
 	tx, _ := db.Begin()
 
 	for _, migration := range ms {
@@ -249,6 +250,7 @@ func (ms migrations) migrate(db *sql.DB) error {
 	}
 
 	tx.Commit()
+
 	if Verbose {
 		fmt.Println("=== migrations.End ===\n")
 	}
