@@ -29,3 +29,15 @@ type ErrMigration struct {
 func (e ErrMigration) Error() string {
 	return fmt.Sprintf("Error in migration `%s`: %s", e.migration.filepath, e.detail)
 }
+
+// ----------------------------------------------------------------------------
+// ErrMigrationFileIsEmpty
+// ----------------------------------------------------------------------------
+
+type ErrMigrationFileIsEmpty struct {
+	filepath string
+}
+
+func (e ErrMigrationFileIsEmpty) Error() string {
+	return fmt.Sprintf("Migration file `%s` is empty.", e.filepath)
+}

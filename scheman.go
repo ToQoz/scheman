@@ -74,7 +74,6 @@ func (mr *Migrator) MigrateTo(targetVersion string) error {
 }
 
 func (mr *Migrator) NewMigrations(kind string) (migrations, error) {
-	matcher := regexp.MustCompile(`\/(\d+)_(\w+)_` + kind + `.sql$`)
 	migrations := migrations{}
 
 	files, err := ioutil.ReadDir(mr.migrationsPath)
@@ -87,6 +86,9 @@ func (mr *Migrator) NewMigrations(kind string) (migrations, error) {
 		return nil, err
 	}
 
+	targetMatcher := regexp.MustCompile(`\/(\d+)_(\w+)_` + kind + `.sql$`)
+	migrationMatcher := regexp.MustCompile(`\/(\d+)_(\w+)_(up|down).sql$`)
+
 	for _, file := range files {
 		if file.IsDir() {
 			continue
@@ -94,11 +96,25 @@ func (mr *Migrator) NewMigrations(kind string) (migrations, error) {
 
 		fpath := filepath.Join(mr.migrationsPath, file.Name())
 
-		if !matcher.MatchString(fpath) {
+		// Check all migrations(*_up.sql and *_down.sql).
+		// if empty return error
+		if migrationMatcher.MatchString(fpath) {
+			data, err := ioutil.ReadFile(fpath)
+
+			if err != nil {
+				return nil, err
+			}
+
+			if strings.Trim(string(data), " \n ") == "" {
+				return nil, &ErrMigrationFileIsEmpty{fpath}
+			}
+		}
+
+		if !targetMatcher.MatchString(fpath) {
 			continue
 		}
 
-		matched := matcher.FindStringSubmatch(fpath)
+		matched := targetMatcher.FindStringSubmatch(fpath)
 		m := &migration{
 			version:  matched[1],
 			name:     matched[2],
@@ -252,7 +268,6 @@ func (m *migration) migrate(db *sql.Tx) error {
 	}
 
 	strbuf := removeComment(string(buf))
-	fmt.Print(strbuf)
 
 	// If multiple stmts given, this split stmts at ";".
 	// WARNING: This is realized by very ugly and not good way.
