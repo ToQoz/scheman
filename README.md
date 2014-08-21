@@ -35,9 +35,19 @@ create: sql/20131103115446_create_posts_down.sql
 
 ```
 $ go get github.com/ToQoz/scheman/scheman-mysql
-$ vi scheman.json # see http://github.com/ToQoz/scheman/tree/master/scheman-mysql/scheman.json.sample
+$ vi scheman.json
 $ cat !$
-$ scheman-mysql
+cat scheman.json
+{
+  "User":           "mysql login user",
+  "Password":       "mysql login password",
+  "Database":       "mysql database name",
+  "Encoding":       "mysql database encoding(default utf8)",
+  "MigrationsPath": "migration files directory path",
+  "Version":        "migration version"
+}
+$ scheman-mysql create
+$ scheman-mysql migrate
 ```
 
 See also [scheman-mysql's README](http://github.com/ToQoz/scheman/tree/master/scheman-mysql)
