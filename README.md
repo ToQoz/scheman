@@ -19,12 +19,12 @@ scheman is database schema migration tool.
 ```
 $ mkdir migrations
 $ go get github.com/ToQoz/scheman/scheman-g
-$ scheman-g -name create_posts
+$ scheman-g create_posts
 create: migrations/20131103115446_create_posts_up.sql
 create: migrations/20131103115446_create_posts_down.sql
 
 # if you want to specify migrations directory
-$ scheman-g -path ./sql -name create_posts
+$ scheman-g -path ./sql create_posts
 create: sql/20131103115446_create_posts_up.sql
 create: sql/20131103115446_create_posts_down.sql
 ```
