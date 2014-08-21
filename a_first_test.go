@@ -28,8 +28,6 @@ func TestStartMysqld(t *testing.T) {
 		log.Fatalf("Failed to start mysqld: %s", err)
 	}
 
-	err = mysqld.Start()
-
 	Mysqld = mysqld
 
 	db, err := sql.Open("mysql", Mysqld.Datasource("", "", "", 0))
