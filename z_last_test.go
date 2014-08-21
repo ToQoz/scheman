@@ -15,7 +15,6 @@ func TestStopMysqld(t *testing.T) {
 func TestThisFileIsLastTestFile(t *testing.T) {
 	cmd := exec.Command("go", "list", "-f", "{{.TestGoFiles}}")
 	output, err := cmd.CombinedOutput()
-
 	if err != nil {
 		panic(err)
 	}
