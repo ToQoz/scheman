@@ -16,7 +16,7 @@ func TestThisFileIsLastTestFile(t *testing.T) {
 	cmd := exec.Command("go", "list", "-f", "{{.TestGoFiles}}")
 	output, err := cmd.CombinedOutput()
 	if err != nil {
-		panic(err)
+		t.Fatal(err.Error())
 	}
 
 	tests := strings.Split(strings.Trim(string(output), " \n[]"), " ")

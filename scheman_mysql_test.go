@@ -62,10 +62,10 @@ func TestMySQLRollbackMigration(t *testing.T) {
 
 	migrator, err := NewMigrator(db, "testdata/migrations_20131103115449_invalid")
 	if err != nil {
-		panic(err)
+		t.Fatal(err.Error())
 	}
 	if err = migrator.MigrateTo("20131103115446"); err != nil {
-		panic(err)
+		t.Fatal(err.Error())
 	}
 
 	err = migrator.MigrateTo("20131103115449")

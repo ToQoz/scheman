@@ -30,13 +30,13 @@ func TestStartMysqld(t *testing.T) {
 	Mysqld = mysqld
 	db, err := sql.Open("mysql", Mysqld.Datasource("", "", "", 0))
 	if err != nil {
-		panic(err)
+		t.Fatal(err.Error())
 	}
 	defer db.Close()
 
 	_, err = db.Exec("SELECT 1")
 	if err != nil {
-		panic(err)
+		t.Fatal(err.Error())
 	}
 }
 
@@ -44,7 +44,7 @@ func TestThisFileIsFirstTestFile(t *testing.T) {
 	cmd := exec.Command("go", "list", "-f", "{{.TestGoFiles}}")
 	output, err := cmd.CombinedOutput()
 	if err != nil {
-		panic(err)
+		t.Fatal(err.Error())
 	}
 
 	tests := strings.Split(strings.Trim(string(output), " \n[]"), " ")
