@@ -23,6 +23,6 @@ func TestThisFileIsLastTestFile(t *testing.T) {
 	lastTest := tests[len(tests)-1]
 
 	if lastTest != "z_last_test.go" {
-		t.Errorf("expected last_test is z_last_test.go, but got %v", lastTest)
+		t.Fatalf("expected last_test is z_last_test.go, but got %v", lastTest)
 	}
 }

@@ -51,6 +51,6 @@ func TestThisFileIsFirstTestFile(t *testing.T) {
 	lastTest := tests[0]
 
 	if lastTest != "a_first_test.go" {
-		t.Errorf("expected last_test is a_first_test.go, but got %v", lastTest)
+		t.Fatalf("expected last_test is a_first_test.go, but got %v", lastTest)
 	}
 }
