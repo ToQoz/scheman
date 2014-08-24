@@ -34,7 +34,7 @@ func TestStartMysqld(t *testing.T) {
 	}
 	defer db.Close()
 
-	_, err = db.Exec("SELECT 1")
+	_, err = db.Exec("CREATE DATABASE IF NOT EXISTS test")
 	if err != nil {
 		t.Fatal(err.Error())
 	}
