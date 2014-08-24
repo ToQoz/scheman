@@ -1,6 +1,6 @@
 # Scheman
 
-[![Build Status](https://travis-ci.org/ToQoz/scheman.png?branch=master)](https://travis-ci.org/ToQoz/scheman)
+[![Build Status](https://drone.io/github.com/ToQoz/scheman/status.png)](https://drone.io/github.com/ToQoz/scheman/latest)
 
 !!! Under development !!!
 
