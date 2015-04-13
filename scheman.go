@@ -14,6 +14,7 @@ import (
 var (
 	Verbose              = true
 	migrationFileMatcher = regexp.MustCompile(`\/(\d+)_(\w+)_(?:up|down).sql$`)
+	commentMatcher       = regexp.MustCompile(`--.*`)
 )
 
 // ----------------------------------------------------------------------------
@@ -305,36 +306,8 @@ func (m *migration) migrate(db *sql.Tx) error {
 		return err
 	}
 
-	strbuf := removeComment(string(buf))
-
-	// If multiple stmts given, this split stmts at ";".
-	// WARNING: This is realized by very ugly and not good way.
-	//          But probably this is not problem in general cases.
-	//          Generally, DDL uses ";" as end of stmt, or comment.
-
-	var stmt string
-
-	for {
-		if strings.Trim(strbuf, " \n") == "" {
-			break
-		}
-
-		i := strings.Index(strbuf, ";")
-
-		// "foo" ->
-		//     stmt: "foo;"
-		//     strbuf: ""
-		// "foo;bar;foobar;" ->
-		//     stmt: "foo;"
-		//     strbuf: "bar;foobar;"
-		if i == -1 {
-			stmt = strbuf
-			strbuf = ""
-		} else {
-			stmt = strbuf[:i+1]
-			strbuf = strbuf[i+1:]
-		}
-
+	stmts := commentMatcher.ReplaceAll(buf, []byte{})
+	for _, stmt := range splitStmt(stmts) {
 		_, err = db.Exec(stmt)
 
 		if err != nil {
@@ -383,7 +356,38 @@ func containString(slice []string, s string) bool {
 	return false
 }
 
-func removeComment(q string) string {
-	r := regexp.MustCompile(`--.*`)
-	return r.ReplaceAllString(q, "")
+// If multiple stmts given, this split stmts at ";".
+// WARNING: This is realized by very ugly and not good way.
+//          But probably this is not problem in general cases.
+//          Generally, DDL uses ";" as end of stmt, or comment.
+func splitStmt(stmtsData []byte) (stmts []string) {
+	stmtsStr := string(stmtsData)
+	var stmt string
+
+	for {
+		stmtsStr = strings.Trim(stmtsStr, " \n")
+		if stmtsStr == "" {
+			break
+		}
+
+		i := strings.Index(stmtsStr, ";")
+
+		// "foo" ->
+		//     stmt: "foo;"
+		//     stmtsStr: ""
+		// "foo;bar;foobar;" ->
+		//     stmt: "foo;"
+		//     stmtsStr: "bar;foobar;"
+		if i == -1 {
+			stmt = stmtsStr
+			stmtsStr = ""
+		} else {
+			stmt = stmtsStr[:i+1]
+			stmtsStr = stmtsStr[i+1:]
+		}
+
+		stmts = append(stmts, stmt)
+	}
+
+	return stmts
 }
