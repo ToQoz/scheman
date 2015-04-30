@@ -9,32 +9,33 @@ import (
 )
 
 type Config struct {
-	filename       string `json:"-`
+	filename       string `json:"-"`
+	Host           string
+	Port           string
 	User           string
 	Password       string
 	Database       string
 	MigrationsPath string
 	Version        string
 	Encoding       string
+	Params         map[string]string
 }
 
 func NewConfig(filename string) *Config {
-	cfg := &Config{filename: filename}
-
 	f, err := ioutil.ReadFile(filename)
-
 	if err != nil {
-		fmt.Fprintf(os.Stderr, err.Error())
-		os.Exit(1)
+		panic(err)
 	}
+	cfg := newConfigFromData(f)
+	cfg.filename = filename
+	return cfg
+}
 
-	err = json.Unmarshal(f, cfg)
-
-	if err != nil {
-		fmt.Fprintf(os.Stderr, err.Error())
-		os.Exit(1)
+func newConfigFromData(data []byte) *Config {
+	cfg := &Config{}
+	if err := json.Unmarshal(data, cfg); err != nil {
+		panic(err)
 	}
-
 	return cfg
 }
 
